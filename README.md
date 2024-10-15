@@ -1,86 +1,55 @@
-# Readme for Todo App 📝
+Here’s the updated `README.md` file for your React application, specifying that Node.js version should be 16.x.
 
-### Installation 🚀
+---
 
-1. **Install Node.js and NPM on Ubuntu:**
-   - Make sure you have Node.js 16.x and NPM installed on your machine. If not, you can install them using the following commands:
-     ```bash
-     curl -s https://deb.nodesource.com/setup_16.x | sudo bash
-     sudo apt install nodejs -y
-     ```
+# React Application - Docker Setup
 
-### Configuration ⚙️
+This project is a React application that is packaged and served using NGINX in a Docker container.
 
-2. **Update Backend URL:**
-   - Open the `src/TodoApp.js` file.
-   - Locate the variable storing the backend URL and update it with the appropriate value. (* See Below for PrivateIp Configuration)
+## Prerequisites
 
-### Building and Running 🏗️
+Before you can build and run the application, ensure you have the following installed:
 
-3. **Install Dependencies:**
-   - Run the following command to install project dependencies:
-     ```bash
-     npm install
-     ```
+- [Docker](https://www.docker.com/get-started) (version 20.10 or higher)
+- [Node.js](https://nodejs.org/) (version 16.x recommended for local development, optional)
 
-4. **Build the Project:**
-   - Execute the following command to build the project:
-     ```bash
-     npm run build
-     ```
+## Steps to Build and Run
 
-### Deployment 🚀
+1. **Clone the repository** (if not already done):
+   ```bash
+   git clone <repository-url>
+   cd <repository-folder>
+   ```
 
-5. **Deploy to Nginx Server:**
-   - Copy the generated artifacts from the build process.
-   - Deploy the artifacts to your Nginx server. Ensure that the server is properly configured to serve the application.
+2. **Build the Docker image**:
+   ```bash
+   docker build -t react-app .
+   ```
 
-## * Using Private IP on the Backend VM 🌐
+3. **Run the Docker container**:
+   ```bash
+   docker run -d -p 8080:80 react-app
+   ```
 
-To use a Private IP on the Backend VM, follow the steps below:
+4. **Access the Application**:
+   Open a web browser and navigate to `http://localhost:8080` to view your React application.
 
-### 1. Configure NGINX on the Backend VM ⚙️
+## Dockerfile Explanation
 
-Open the NGINX configuration file:
+- **Base Image (Build Stage)**:
+  - The first stage uses `node:16.17.0-alpine` as the base image. It sets the working directory to `/todoapp`, copies all project files into the container, and installs the necessary dependencies using `npm install`. It then builds the application using `npm run build`.
 
-```bash
-sudo nano /etc/nginx/sites-available/default
-```
+- **Base Image (Runtime Stage)**:
+  - The second stage uses `nginx:stable-alpine` as the base image. It copies the built React application from the previous stage to the NGINX HTML directory (`/usr/share/nginx/html/`), where it will be served.
 
-### 2. Insert Proxy Configuration 🔄
+## Additional Notes
 
-Copy and paste the following code just above the `root /var/www/html` line:
+- If you make changes to the application, repeat the build and run steps to see the updates.
+- For local development, ensure you are using Node.js version **16.x** and run the application with:
+  ```bash
+  npm start
+  ```
 
-```nginx
-location /api {
-   proxy_pass http://<PrivateIP of BackendVM>:8000;
-   proxy_set_header Host $host;
-   proxy_set_header X-Real-IP $remote_addr;
-   proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-   proxy_set_header X-Forwarded-Proto $scheme;
-}
-```
+---
 
-Replace `<PrivateIP of BackendVM>` with the actual Private IP address of your Backend VM.
-
-### 3. Update Frontend Configuration ⚙️
-
-Open the `src/TodoApp.js` file in your frontend project.
-
-Update the Backend URL by replacing the existing line with the following:
-
-```javascript
-const API_BASE_URL = 'http://<FrontendVM Public IP>:80/api';
-```
-
-Replace `<FrontendVM Public IP>` with the actual Public IP address of your Frontend VM.
-
-## Important Note 📌
-
-Make sure to restart NGINX on the VM after making the changes:
-
-```bash
-sudo service nginx restart
-```
-
-These configurations enable communication between the Frontend and Backend using Private IP on the Backend VM. Ensure that the IPs and ports are correctly set to match your environment.
+This `README.md` file now includes the requirement for Node.js version 16.x. Feel free to adjust any specific details as necessary for your project!
